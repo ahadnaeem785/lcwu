@@ -1,0 +1,80 @@
+{% extends 'ecom/homebase.html' %}
+{% load static %}
+{% block content %}
+<br><br><br>
+<!-- <img src="{% static "images/logout_img.png" %}"  style="width:800px; height:100px; padding-left:400px;"> -->
+
+<center>
+    <h2>You've been logged out successfully!</h2>
+</center>
+
+<br><br><br><br><br>
+<br><br><br><br><br>
+<br><br><br>
+
+<script>
+    function logout() {
+      const utterance = new SpeechSynthesisUtterance("You've been logged out successfully!");
+      speechSynthesis.speak(utterance);
+    }
+    
+    // Speak search results once the page is loaded
+    window.addEventListener('load', logout);
+  
+    document.addEventListener("DOMContentLoaded", function() {
+      if (window.hasOwnProperty('webkitSpeechRecognition')) {
+        var recognition = new webkitSpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = false;
+        recognition.lang = "en-US";
+  
+        recognition.onresult = function(e) {
+          var transcript = e.results[e.resultIndex][0].transcript.toLowerCase(); // Convert transcript to lowercase
+  
+          // Check if the user said "search"
+          if (transcript.includes("search")) {
+            // Perform action, e.g., show search bar or trigger search function
+            document.getElementById('query').focus(); // Focus on the search input
+          }
+  
+          // Check if the user said "mic" or "microphone"
+          if (transcript.includes("mic") || transcript.includes("microphone")) {
+            // Perform action, e.g., trigger voice search form submission
+            document.querySelector('.navbar-button-v').click();
+          }
+          
+          if (transcript.includes("go to cart")) {
+          // Trigger cart button link click
+          document.querySelector('.cart-button').click();
+        }
+
+        if (transcript.includes("sign up")) {
+            // Perform action, e.g., trigger signup link click
+            document.querySelector('a[href="/customersignup"]').click();
+          }
+
+          // Check if the user said "login"
+          if (transcript.includes("login")) {
+            // Perform action, e.g., trigger login link click
+            document.querySelector('a[href="/customerlogin"]').click();
+          }
+          // Check if the user said "signup"
+          
+            // Check if the user said "admin"
+            if (transcript.includes("admin")) {
+            // Perform action, e.g., trigger signup link click
+            document.querySelector('a[href="/adminclick"]').click();
+          }
+        };
+  
+        recognition.onerror = function(e) {
+          recognition.stop();
+
+        };
+  
+        recognition.start();
+      }
+    });
+  </script>
+  
+{% endblock content %}

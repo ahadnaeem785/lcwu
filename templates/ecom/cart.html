@@ -1,0 +1,206 @@
+{% extends 'ecom/homebase.html' %}
+{% load static %}
+{% block content %}
+
+{% if redirect_to %}
+<script>
+  location.replace("{{redirect_to}}")
+</script>
+{% endif %}
+
+<head>
+  <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+  <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+  <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<style media="screen">
+  .button {
+  display: inline-block;
+  border-radius: 4px;
+  background-color: #f4511e;
+  border: none;
+  color: #FFFFFF;
+  text-align: center;
+  font-size: 28px;
+  padding: 20px;
+  width: 200px;
+  transition: all 0.5s;
+  cursor: pointer;
+  margin: 5px;
+}
+
+.button span {
+  cursor: pointer;
+  display: inline-block;
+  position: relative;
+  transition: 0.5s;
+}
+
+.button span:after {
+  content: '\00bb';
+  position: absolute;
+  opacity: 0;
+  top: 0;
+  right: -20px;
+  transition: 0.5s;
+}
+
+.button:hover span {
+  padding-right: 25px;
+}
+
+.button:hover span:after {
+  opacity: 1;
+  right: 0;
+}
+
+.button2 {
+  background-color: white;
+  color: black;
+  border: 2px solid #008CBA;
+}
+
+.button2:hover {
+  background-color: #008CBA;
+  color: white;
+}
+
+</style>
+
+</head>
+<!--
+written By : sumit kumar
+-->
+<br><br><br><br>
+
+<div class="container">
+  <div class="panel panel-success">
+    <div class="panel-heading">
+      <h6 style="text-align:center;" class="panel-title">My Cart</h6>
+    </div>
+    <table class="table table-hover table-bordered" id="dev-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Image</th>
+          <th>Price</th>
+          <th>Description</th>
+          <th>Action</th>
+
+        </tr>
+      </thead>
+      {% for p in products %}
+  {% if p %}
+
+      <tr>
+        <td> {{p.name}}</td>
+        <td> <img src="{% static p.product_image.url %}" alt="Profile Pic" height="50px" width="50px" /></td>
+        <td>$ {{p.price}}</td>
+        <td>{{p.description}}</td>
+
+        <td><a class="btn btn-danger btn-xs" href="{% url 'remove-from-cart' p.id  %}?next_page={{request.path}}"><span class="glyphicon glyphicon-trash"></span></a></td>
+
+      </tr>
+      {%else%}
+      <br><br><br>
+      <h1>no products</h1>
+      {% endif %}
+      {% endfor %}
+    </table>
+  </div>
+</div>
+<br><br><br>
+<div style="text-align: center;">
+  <button class="btn btn-danger btn-lg">Total ${{total}}</button>
+  <a href="/payment-success"><button class="btn btn-success btn-lg" ><span>Purchase </span></button></a>
+</div>
+
+
+<br><br><br><br><br>
+
+<script>
+    function cartdata() {
+        // Select all rows in the table except the header row
+        const rows = document.querySelectorAll('#dev-table tbody tr');
+
+        if (rows.length > 0) {
+            let productList = '';
+            rows.forEach(row => {
+                const name = row.querySelector('td:nth-child(1)').textContent.trim();
+                const price = row.querySelector('td:nth-child(3)').textContent.trim();
+                const description = row.querySelector('td:nth-child(4)').textContent.trim();
+
+                productList += `${name}. Price: ${price}. Description: ${description}. `;
+            });
+
+            const utterance = new SpeechSynthesisUtterance(`Welcome to your cart. You have the following items: ${productList}`);
+            console.log("Utterance:", utterance.text);
+            speechSynthesis.speak(utterance);
+        } else {
+            const utterance = new SpeechSynthesisUtterance("Your cart is empty.");
+            console.log("Utterance:", utterance.text);
+            speechSynthesis.speak(utterance);
+        }
+    }
+
+    // Speak cart data once the page is loaded
+    window.addEventListener('load', cartdata);
+</script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    if (window.hasOwnProperty('webkitSpeechRecognition')) {
+      var recognition = new webkitSpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = false;
+      recognition.lang = "en-US";
+
+      recognition.onresult = function(e) {
+        var transcript = e.results[e.resultIndex][0].transcript.toLowerCase(); // Convert transcript to lowercase
+
+        // Check if the user said "search"
+        if (transcript.includes("search")) {
+          // Perform action, e.g., show search bar or trigger search function
+          document.getElementById('query').focus(); // Focus on the search input
+        }
+
+        // Check if the user said "mic" or "microphone"
+        if (transcript.includes("mic") || transcript.includes("microphone")) {
+          // Perform action, e.g., trigger voice search form submission
+          document.querySelector('.navbar-button-v').click();
+        }
+
+        if (transcript.includes("go to cart")) {
+          // Trigger cart button link click
+          document.querySelector('.cart-button').click();
+        }
+
+        // Check if the user said "logout"
+        if (transcript.includes("logout")) {
+          // Perform action, e.g., trigger logout link click
+          document.querySelector('a[href="/logout"]').click();
+        
+      }
+      if (transcript.includes("sign up")) {
+          // Perform action, e.g., trigger logout link click
+          document.querySelector('a[href="/customersignup"]').click();
+        
+
+        }
+      };
+
+      recognition.onerror = function(e) {
+        recognition.stop();
+        setTimeout(startDictation, 1000); // Restart recognition after an error
+      };
+
+      recognition.onend = function() {
+            setTimeout(startDictation, 1000); // Restart recognition if it ends
+          };
+
+      recognition.start();
+
+  }});
+</script>
+<!--
+developed By : sumit kumar
+-->
+{% endblock content %}
